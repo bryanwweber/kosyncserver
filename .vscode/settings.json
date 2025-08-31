@@ -1,0 +1,21 @@
+{
+    "cSpell.words": [
+        "aiosqlite",
+        "fastapi",
+        "granian",
+        "koreader",
+        "kosyncserver",
+        "pydantic",
+        "sqlalchemy",
+        "taplo"
+    ],
+    "python.terminal.shellIntegration.enabled": true,
+    "python.testing.pytestEnabled": true,
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+}

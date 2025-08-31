@@ -1,0 +1,50 @@
+name: Linting and Testing
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Install dependencies
+        uses: astral-sh/setup-uv@4959332f0f014c5280e7eac8b70c90cb574c9f9b # v6.6.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+      - name: Lint the code
+        run: |
+          uv run ruff check .
+      - name: Format the code
+        run: |
+          uv run ruff format --check .
+#   test:
+#     runs-on: ubuntu-24.04
+#     steps:
+#       - name: Checkout the repo
+#         uses: actions/checkout@v5
+#         with:
+#           persist-credentials: false
+#       - name: Install dependencies
+#         uses: astral-sh/setup-uv@4959332f0f014c5280e7eac8b70c90cb574c9f9b # v6.6.0
+#         with:
+#           enable-cache: true
+#           cache-dependency-glob: "pyproject.toml"
+#       - name: Run tests
+#         run: |
+#           uv run pytest -vv tests/

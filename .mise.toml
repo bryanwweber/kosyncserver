@@ -1,0 +1,14 @@
+[tools]
+taplo = "latest"
+uv = "latest"
+
+[tasks.build]
+description = "Build the docker image for the project"
+run = "docker build -t ghcr.io/bryanwweber/kosyncserver:latest ."
+
+[tasks.run]
+description = "Run the web server"
+run = '''
+set +e
+uv run granian --interface asgi --port 8000 --host 127.0.0.1 --reload --loop uvloop kosyncserver.app:app
+'''
