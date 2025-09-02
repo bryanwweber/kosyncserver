@@ -35,4 +35,4 @@ ENV PATH="/app/bin:$PATH"
 USER app
 WORKDIR /app
 
-CMD ["granian", "--interface", "asgi", "kosyncserver:app", "--port", "8000", "--host", "0.0.0.0"]
+CMD ["python", "-m", "kosyncserver"]
