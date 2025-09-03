@@ -29,6 +29,13 @@ class Logging[RendererType]:
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.CallsiteParameterAdder(
+            [
+                structlog.processors.CallsiteParameter.PATHNAME,
+                structlog.processors.CallsiteParameter.FUNC_NAME,
+                structlog.processors.CallsiteParameter.LINENO,
+            ]
+        ),
         timestamper,
         structlog.processors.UnicodeDecoder(),
         structlog.processors.StackInfoRenderer(),
