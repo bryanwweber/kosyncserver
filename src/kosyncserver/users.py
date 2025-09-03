@@ -25,17 +25,23 @@ async def create_user(user: User, db: Annotated[aiosqlite.Connection, Depends(ge
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username and password are required",
         )
-    result = await db.execute(
-        "INSERT INTO users (username, password) VALUES (:username, :password)",
-        {"username": user.username, "password": user.password},
-    )
-    if result.rowcount == 0:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User already exists",
+    try:
+        await db.execute(
+            "INSERT INTO users (username, password) VALUES (:username, :password)",
+            {"username": user.username, "password": user.password},
         )
+    except aiosqlite.IntegrityError:
+        return JSONResponse(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            content={"code": 2002, "message": "Username is already registered."},
+        )
+        # raise HTTPException(
+        #     status_code=status.HTTP_402_PAYMENT_REQUIRED, detail="User already exists"
+        # )
     await db.commit()
-    return JSONResponse(content={"username": user.username})
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED, content={"username": user.username}
+    )
 
 
 def user_to_user(cursor: aiosqlite.Cursor, row: tuple) -> User:
