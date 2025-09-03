@@ -3,7 +3,6 @@ from typing import Annotated
 import aiosqlite
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import JSONResponse
-from loguru import logger
 from pydantic import BaseModel
 
 from .database import get_db
@@ -55,7 +54,6 @@ async def get_user(
         {"username": x_auth_user},
     )
     user = await result.fetchone()
-    logger.debug("Fetching user {x_auth_user}", x_auth_user=repr(user))
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username"

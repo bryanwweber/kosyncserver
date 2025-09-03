@@ -1,14 +1,17 @@
 from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import FastAPI
-from fastapi.requests import Request
-from fastapi.responses import Response
-from loguru import logger
-from starlette.background import BackgroundTask
 
 from .database import dispose_db, get_db
 from .documents import router as documents_router
+from .logging import Logger
+from .logging import configure as configure_logging
+from .middleware import LogCorrelationIdMiddleware
 from .users import router as users_router
+
+logger: Logger = structlog.get_logger()
+configure_logging()
 
 create_table_query = """
 BEGIN;
@@ -40,40 +43,10 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(documents_router)
 app.include_router(users_router)
 
-
-def log_info(req_body, res_body, response: Response, request: Request):
-    logger.debug(
-        "Request: body={req_body}, headers={headers}",
-        req_body=req_body,
-        headers=dict(request.headers),
-    )
-    logger.debug(
-        "Response: status_code={status_code}, headers={headers}, body={res_body}",
-        res_body=res_body,
-        headers=dict(response.headers),
-        status_code=response.status_code,
-    )
-
-
-@app.middleware("http")
-async def log_request(request: Request, call_next):
-    req_body = await request.body()
-    response = await call_next(request)
-    chunks = [chunk async for chunk in response.body_iterator]
-    res_body = b"".join(chunks)
-
-    task = BackgroundTask(log_info, req_body, res_body, response, request)
-    return Response(
-        content=res_body,
-        status_code=response.status_code,
-        headers=dict(response.headers),
-        media_type=response.media_type,
-        background=task,
-    )
-
-    return response
+app.add_middleware(LogCorrelationIdMiddleware)
 
 
 @app.get("/")
 async def root():
+    logger.debug("Hello World!")
     return {"message": "Hello World!"}
