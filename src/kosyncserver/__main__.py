@@ -1,14 +1,15 @@
 from granian import Granian
 
-from . import logging
+from .config import get_settings
 
 if __name__ == "__main__":
+    settings = get_settings()
     server = Granian(
         "kosyncserver.app:app",
-        interface="asgi",
-        port=8000,
-        address="0.0.0.0",
-        loop="uvloop",
+        interface=settings.interface,
+        port=settings.port,
+        address=settings.host,
+        loop=settings.loop,
+        reload=settings.reload,
     )
     server.serve()
-    # changes
