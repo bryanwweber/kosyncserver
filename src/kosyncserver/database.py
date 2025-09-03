@@ -1,12 +1,14 @@
 import aiosqlite
 
+from .config import get_settings
+
 db: aiosqlite.Connection | None = None
 
 
 async def get_db() -> aiosqlite.Connection:
     global db
     if db is None:
-        db = await aiosqlite.connect("/tmp/data.db")
+        db = await aiosqlite.connect(get_settings().database_path)
     return db
 
 

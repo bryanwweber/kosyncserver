@@ -4,6 +4,7 @@ dependencies = [
   "fastapi>=0.116.1",
   "granian[reload,uvloop]>=2.5.1",
   "loguru>=0.7.3",
+  "pydantic-settings>=2.10.1",
   "pydantic>=2.11.7",
 ]
 description = "Sync server for koreader. You probably don't want to use this."
