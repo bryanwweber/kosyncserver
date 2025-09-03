@@ -16,13 +16,13 @@ configure_logging()
 create_table_query = """
 BEGIN;
 CREATE TABLE IF NOT EXISTS documents
-    (document_id TEXT,
+    (document TEXT,
      percentage REAL,
      progress TEXT,
      device TEXT,
      device_id TEXT,
      timestamp INTEGER,
-     UNIQUE (document_id, device_id));
+     UNIQUE (document, device_id));
 CREATE TABLE IF NOT EXISTS users
     (username TEXT,
      password TEXT,

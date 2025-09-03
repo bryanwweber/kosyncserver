@@ -16,7 +16,7 @@ logger: Logger = structlog.get_logger()
 
 
 class RequestPosition(BaseModel):
-    document_id: str
+    document: str
     percentage: float
     progress: str
     device: str
@@ -31,27 +31,27 @@ def document_to_request_position(
 
 
 class ResponsePosition(BaseModel):
-    document_id: str
+    document: str
     timestamp: int
 
 
-@router.get("/syncs/progress/{document_id}", response_model=RequestPosition)
+@router.get("/syncs/progress/{document}", response_model=RequestPosition)
 async def get_sync_progress(
-    document_id: str,
+    document: str,
     db: Annotated[aiosqlite.Connection, Depends(get_db)],
     _: Annotated[None, Depends(get_user)],
 ):
     select_query = """
     SELECT *
     FROM documents
-    WHERE document_id = :document_id
+    WHERE document = :document
     ORDER BY timestamp DESC
     LIMIT 1
     """
 
-    logger.debug("Getting sync progress for document", document_id=document_id)
+    logger.debug("Getting sync progress for document", document=document)
     db.row_factory = document_to_request_position
-    result = await db.execute(select_query, {"document_id": document_id})
+    result = await db.execute(select_query, {"document": document})
     document = await result.fetchone()
     if not document:
         logger.debug("Document not found")
@@ -69,17 +69,17 @@ async def update_sync_progress(
     now = int(time.time())
     update_query = """
     INSERT INTO documents (
-        document_id, percentage, progress, device, device_id, timestamp
+        document, percentage, progress, device, device_id, timestamp
     )
-    VALUES (:document_id, :percentage, :progress, :device, :device_id, :timestamp)
-    ON CONFLICT (document_id, device_id)
+    VALUES (:document, :percentage, :progress, :device, :device_id, :timestamp)
+    ON CONFLICT (document, device_id)
     DO UPDATE SET percentage = :percentage, progress = :progress, timestamp = :timestamp
     """
 
     await db.execute(
         update_query,
         {
-            "document_id": request.document_id,
+            "document": request.document,
             "percentage": request.percentage,
             "progress": request.progress,
             "device": request.device,
@@ -90,6 +90,6 @@ async def update_sync_progress(
     await db.commit()
     logger.debug("Sync progress updated for document", **request.model_dump())
     return ResponsePosition(
-        document_id=request.document_id,
+        document=request.document,
         timestamp=now,
     )
