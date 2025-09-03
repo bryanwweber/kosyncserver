@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 
 from .database import dispose_db, get_db
 from .documents import router as documents_router
@@ -50,3 +50,8 @@ app.add_middleware(LogCorrelationIdMiddleware)
 async def root():
     logger.debug("Hello World!")
     return {"message": "Hello World!"}
+
+
+@app.get("/healthcheck", status_code=status.HTTP_200_OK)
+async def healthcheck():
+    return {"state": "ok"}
