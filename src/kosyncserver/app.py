@@ -7,7 +7,7 @@ from .database import dispose_db, get_db
 from .documents import router as documents_router
 from .logging import Logger
 from .logging import configure as configure_logging
-from .middleware import LogCorrelationIdMiddleware
+from .middleware import LogCorrelationIdMiddleware, LogRequestResponseMiddleware
 from .users import router as users_router
 
 logger: Logger = structlog.get_logger()
@@ -43,6 +43,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(documents_router)
 app.include_router(users_router)
 
+app.add_middleware(LogRequestResponseMiddleware)
 app.add_middleware(LogCorrelationIdMiddleware)
 
 
