@@ -5,7 +5,7 @@ from typing import Any, ClassVar, TypeVar
 import structlog
 from structlog.typing import Processor
 
-from .config import get_settings
+from .config import LogLevel, get_settings
 
 RendererType = TypeVar("RendererType")
 
@@ -13,7 +13,7 @@ RendererType = TypeVar("RendererType")
 Logger = structlog.stdlib.BoundLogger
 
 
-def get_level() -> str:
+def get_level() -> LogLevel:
     return get_settings().log_level
 
 
