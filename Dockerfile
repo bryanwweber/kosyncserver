@@ -38,8 +38,12 @@ RUN groupadd -r app && \
     chown -R app:app /data
 
 COPY --from=build --chown=app:app /app /app
+COPY healthcheck.py /app/healthcheck.py
 
 USER app
 WORKDIR /app
+
+HEALTHCHECK --interval=5s --timeout=3s --start-period=3s --retries=3 \
+    CMD ["python", "/app/healthcheck.py"]
 
 CMD ["python", "-m", "kosyncserver"]
