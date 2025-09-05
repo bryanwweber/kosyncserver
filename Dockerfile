@@ -25,12 +25,19 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS final
 
-RUN groupadd -r app && \
-    useradd -r -d /app -g app -N app
+ENV PATH="/app/bin:$PATH" \
+    DATABASE_PATH=/data/kosyncserver.db
 
 STOPSIGNAL SIGINT
+
+SHELL ["sh", "-exc"]
+
+RUN groupadd -r app && \
+    useradd -r -d /app -g app -N app && \
+    mkdir -p /data && \
+    chown -R app:app /data
+
 COPY --from=build --chown=app:app /app /app
-ENV PATH="/app/bin:$PATH"
 
 USER app
 WORKDIR /app
